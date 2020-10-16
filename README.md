@@ -38,3 +38,5 @@ Start the development container by following the instructions in [./DOCKER.md](.
 - Functionality: Are all functional requirements met?
 - Ease of Use: Can I just `docker-compose up` and have everything working? If environment variables or settings must be defined, are they sufficiently explained/documented?
 - Idiomatics: Do you follow React.js code conventions and avoid anti-patterns?
+# minesweeper
+# minesweeper
