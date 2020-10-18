@@ -13,29 +13,10 @@ const Grid = () => {
         ["", "", "", "", "", "", "", ""],
         ["", "", "", "", "", "", "", ""]
     ])
+
     const [bombDirectory, setBombDirectory] = useState()
-    useEffect(() => {
-        const generateBombs = () => {
-            let bombCounts = 0
-            let temp = [...bombMap]
-            let directory = new Set()
-            while (bombCounts < 10) {
-                let row = Math.floor(Math.random() * 8);
-                let column = Math.floor(Math.random() * 8)
 
-                if (!directory.has(`row${row}column${column}`)) {
-                    directory.add(`row${row}column${column}`)
-                    temp[row][column] = "x";
-                    bombCounts++;
-                }
-            }
-            setBombMap(temp)
-            setBombDirectory(directory)
-        }
-        generateBombs()
-    }, [])
-
-    const calculateNeighbors = (row, col) => {
+    const calculateNeighbors = (bombDirectory, row, col) => {
         let number = 0
         //check top left
         if (bombDirectory.has(`row${row - 1}column${col - 1}`)) {
@@ -72,17 +53,36 @@ const Grid = () => {
         return number
     }
 
-    const handleBoxClick = (row, col) => {
-        let number = calculateNeighbors(row, col)
-        if (number > 0) {
-            let temp = [...bombMap];
-            temp[row][col] = number
+    useEffect(() => {
+        const generateIdentity = () => {
+            let bombCounts = 0
+            let temp = [...bombMap]
+            let directory = new Set()
+            while (bombCounts < 10) {
+                let row = Math.floor(Math.random() * 8);
+                let column = Math.floor(Math.random() * 8)
+
+                if (!directory.has(`row${row}column${column}`)) {
+                    directory.add(`row${row}column${column}`)
+                    temp[row][column] = "x";
+                    bombCounts++;
+                }
+            }
+            // setBombDirectory(directory)
+            temp.forEach((row, i) => {
+                row.forEach((box, j) => {
+                    let number = calculateNeighbors(directory, i, j)
+                    if (!directory.has(`row${i}column${j}`) && number > 0) {
+                        temp[i][j] = number
+                    }
+                })
+            })
             setBombMap(temp)
         }
-    }
+        generateIdentity()
+    }, [])
 
 
-    console.log(bombMap)
     return (
         <div className="container">
             {bombMap.map((row, i) => {
@@ -91,9 +91,8 @@ const Grid = () => {
                         {row.map((col, j) => {
                             return (
                                 <Square
-                                    click={(i, j) => { handleBoxClick(i, j) }}
+                                    identity={col}
                                 >
-                                    {col}
                                 </Square>
                             )
                         })}
