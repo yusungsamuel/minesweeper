@@ -4,7 +4,9 @@ import "./style.scss";
 
 const Square = (props) => {
     return (
-        <Col>
+        <Col
+            onClick={props.click}
+        >
             {props.children}
         </Col>
     )
