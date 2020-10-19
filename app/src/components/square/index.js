@@ -17,13 +17,19 @@ const Square = (props) => {
         }
     }
 
-    const handleLeftClick = () => {
-        console.log(identity)
-        setStatus("revealed")
+    const handleClick = (e) => {
+        if(e.type === "click"){
+            setStatus("revealed")
+        }
+        else if(e.type === 'contextmenu'){
+            e.preventDefault();
+            setStatus("flagged")
+        }
     } 
     return (
         <Col
-            onClick={handleLeftClick}
+            onClick={handleClick}
+            onContextMenu={handleClick}
         >
             {conditionalRender(status)}
         </Col>
