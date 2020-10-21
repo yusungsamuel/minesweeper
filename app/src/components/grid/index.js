@@ -55,55 +55,65 @@ const Grid = () => {
     return bombCounts
   }
 
-  const generateNewBoard = () =>{
+  const generateNewBoard = () => {
     let data = createEmptyBoard();
     data = generateBombs(data);
-    data.forEach((row, x)=>{
-      row.forEach((item, y)=>{
+    data.forEach((row, x) => {
+      row.forEach((item, y) => {
         item.neighbors = calculateNeighbors(x, y, data)
       })
     })
     setBoard(data)
   }
 
+  const dfs = (x, y, board) => {
+    const directions = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
+    const m = board.length;
 
-  // const dfs = (x, y, board, reveal) => {
-  //   console.log(reveal)
-  //   const directions = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
-  //   const m = board.length;
+    // Count the adjacent mines
+    let bombCounts = 0;
+    for (let [dx, dy] of directions) {
+      const i = x + dx, j = y + dy;
 
-  //   // Count the adjacent mines
-  //   let bombCounts = 0;
-  //   for (let [dx, dy] of directions) {
-  //     const i = x + dx, j = y + dy;
+      if (i >= 0 && i < m && j >= 0 && j < m && board[i][j].isMine) {
+        bombCounts++;
+      }
+    }
 
-  //     if (i >= 0 && i < m && j >= 0 && j < m && board[i][j] === 'M') {
-  //       bombCounts++;
-  //     }
-  //   }
+      board[x][y].neighbors = bombCounts;
+    
+      if (bombCounts === 0) {
+      // If an empty square ('E') with no adjacent mines is revealed, then change it to revealed blank ('B')
+      // and all of its adjacent unrevealed squares should be revealed recursively.
+      // console.log("board:" + board,  "x:" + x, y)
+      board[x][y].isEmpty = true;
 
-  //   if (bombCounts > 0) {
-  //     board[x][y] = '' + bombCounts;
-  //     reveal("revealed")
-  //   }
-  //   else {
-  //     // If an empty square ('E') with no adjacent mines is revealed, then change it to revealed blank ('B')
-  //     // and all of its adjacent unrevealed squares should be revealed recursively.
-  //     // console.log("board:" + board,  "x:" + x, y)
-  //     board[x][y] = 'B';
-  //     reveal("revealed")
+      for (let [dx, dy] of directions) {
+        const i = x + dx, j = y + dy;
+        if (i >= 0 && i < m && j >= 0 && j < m && board[i][j].isEmpty) {
+          board[i][j].isEmpty = true;
+          dfs(i, j, board);
+        }
+      }
+    }
+    return board
+  };
 
-  //     for (let [dx, dy] of directions) {
-  //       const i = x + dx, j = y + dy;
-  //       if (i >= 0 && i < m && j >= 0 && j < m && board[i][j] === "E") {
-  //         board[i][j] = 'B';
-  //         reveal("revealed")
-  //         dfs(i, j, board);
-  //       }
-  //     }
-  //   }
-  //   return board
-  // };
+  const handleLeftClick = (x, y) => {
+    if (board[x][y].isRevealed || board[x][y].isFlagged) {
+      return
+    }
+
+    let tempBoard = board;
+    tempBoard[x][y].isRevealed = true;
+
+    if(tempBoard[x][y].isEmpty){
+      tempBoard = dfs(x, y, tempBoard)
+    }
+    setBoard(tempBoard)
+  }
+
+
 
   // const updateBoard = (coordinate, reveal, board = bombMap) => {
   //   const [x, y] = coordinate;
@@ -120,27 +130,24 @@ const Grid = () => {
   useEffect(() => {
     generateNewBoard();
   }, [])
-
   console.log(board)
   return (
     <div className="container">
-      {/* {bombMap.map((row, i) => {
+      {board.map((row, i) => {
         return (
           <Row>
             {row.map((col, j) => {
               return (
                 <Square
-                  identity={col}
-                  board={bombMap}
-                  coordinate={[i, j]}
-                  update={updateBoard}
+                  onClick = {()=>{handleLeftClick(col.x, col.y)}}
+                  data={col}
                 >
                 </Square>
               )
             })}
           </Row>
         )
-      })} */}
+      })}
     </div>
 
   )
