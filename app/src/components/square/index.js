@@ -3,21 +3,29 @@ import Col from 'react-bootstrap/Col'
 import "./style.scss";
 
 const Square = (props) => {
-    
+
     const conditionalRender = () => {
+        console.log("I was run")
         let data = props.data
-        if(!data.isRevealed){
-            return data.isFlagged ? "flag" : null
+        if (!data.isRevealed) {
+            return (
+                data.isFlagged ? "flag" : null
+            )
+
         }
         if (data.isMine) {
-            return "bomb";
-          }
-          if (data.neighbour === 0) {
-            return null;
-          }
-          return data.neighbor;
+            console.log("im a bomb")
+            return ("bomb")
+        }
+        if (data.neighbors === 0) {
+            return (
+                data.isFlagged ? "flag" : 0
+            );
+        }
+        return (
+            data.neighbors
+        );
     }
-
     // const handleClick = (e) => {
     //     if (status === "covered") {
     //         if (e.type === "click") {
@@ -38,10 +46,12 @@ const Square = (props) => {
     // }
     return (
         <Col
-            onClick={props.onClick}
-            // onContextMenu={handleClick}
+            onClick={props.click}
+        // onContextMenu={handleClick}
         >
-            {conditionalRender()}
+            {
+                conditionalRender()
+            }
         </Col>
     )
 }
