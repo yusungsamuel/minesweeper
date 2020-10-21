@@ -46,8 +46,8 @@ const Square = (props) => {
     // }
     return (
         <Col
-            onClick={props.click}
-        // onContextMenu={handleClick}
+            onClick={props.leftClick}
+            onContextMenu={props.rightClick}
         >
             {
                 conditionalRender()

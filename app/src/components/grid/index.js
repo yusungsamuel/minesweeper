@@ -5,7 +5,7 @@ import "./style.scss"
 const Grid = () => {
   const [board, setBoard] = useState([])
   const [revealed, setRevealed] = useState(0)
-  const [gameStarted, setStarted] = useState(true)
+  const [flagCount, setFlagCount] = useState(0)
   const createEmptyBoard = () => {
     let data = new Array();
 
@@ -97,7 +97,6 @@ const Grid = () => {
 
   const updateBoard = (x, y, board) => {
     if (board[x][y].isMine) {
-      // If a mine ('M') is revealed, then the game is over - change it to 'X'
       board[x][y].isRevealed = true;
       setRevealed(revealed + 1)
     } 
@@ -118,6 +117,25 @@ const Grid = () => {
     setBoard(tempBoard)
   }
 
+  const handleRightClick = (x, y, e) => {
+    e.preventDefault()
+    if (board[x][y].isRevealed) {
+      return
+    }
+    
+    let tempBoard = board
+    if(!tempBoard[x][y].isFlagged){
+      tempBoard[x][y].isFlagged = true
+      setFlagCount(flagCount + 1)
+    }
+    else {
+      tempBoard[x][y].isFlagged = false 
+      setFlagCount(flagCount - 1)
+    }
+    
+    setBoard(tempBoard)
+  }
+
 
   useEffect(() => {
     generateNewBoard()
@@ -135,7 +153,8 @@ const Grid = () => {
             {row.map((col, j) => {
               return (
                 <Square
-                  click={() => { handleLeftClick(col.x, col.y) }}
+                  leftClick={() => { handleLeftClick(col.x, col.y) }}
+                  rightClick={(e) => { handleRightClick(col.x, col.y, e) }}
                   key={`${col.x}and${col.y}is${col.isRevealed}`}
                   data={col}
                 >
