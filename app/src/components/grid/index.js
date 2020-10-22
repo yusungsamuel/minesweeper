@@ -143,7 +143,7 @@ const Grid = () => {
   const handleLeftClick = (x, y) => {
     if (gameStatus === "not started") {
       setGameStatus("on going")
-      timeRef.current = setInterval(()=>{ setTime(timer => timer + 1); }, 1000);
+      timeRef.current = setInterval(() => { setTime(timer => timer + 1); }, 1000);
     }
 
     if (
@@ -228,13 +228,16 @@ const Grid = () => {
 
   return (
     <div>
-      <Button
-        change={changeGameState}
-        gameStatus={gameStatus}
-      ></Button>
-      <Timer
-        time={time}
-      ></Timer>
+      <div className="top-bar"> 
+        <Button
+          change={changeGameState}
+          gameStatus={gameStatus}
+        ></Button>
+        <Timer
+          time={time}
+        ></Timer>
+
+      </div>
       <div className="container">
         {board.map((row, i) => {
           return (

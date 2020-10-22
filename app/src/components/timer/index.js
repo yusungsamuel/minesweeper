@@ -1,9 +1,9 @@
 import React from "react";
-
+import "./style.scss"
 const Timer = (props) =>{
     
     return (
-    <div> {props.time}</div>
+    <div className="time"> Time: {props.time}</div>
     )
 }
 
