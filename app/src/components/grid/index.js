@@ -6,6 +6,8 @@ const Grid = () => {
   const [board, setBoard] = useState([])
   const [revealed, setRevealed] = useState(0)
   const [flagCount, setFlagCount] = useState(0)
+  const [gameStatus, setGameStatus] = useState("not started")
+
   const createEmptyBoard = () => {
     let data = new Array();
 
@@ -70,70 +72,131 @@ const Grid = () => {
     setBoard(data)
   }
 
+  const getCovered = (data) => {
+    let mineArray = [];
 
-  const dfs = (x, y, board) => {
+    data.map(row => {
+      row.map(item => {
+        if (!item.isRevealed) {
+          mineArray.push(item);
+        }
+      });
+    });
+
+    return mineArray;
+  }
+
+  const getFlaggedMine = (data) =>{
+    let flaggedMine = 0
+    
+    data.forEach(row =>{
+      row.forEach(item=>{
+        if(item.isFlagged && item.isMine){
+          flaggedMine ++
+        }
+      })
+    })
+
+    return flaggedMine
+  }
+
+  const revealAllMine = () => {
+    let tempBoard = board
+    tempBoard.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell.isMine) {
+          cell.isRevealed = true
+        }
+      })
+    })
+    setBoard(tempBoard)
+  }
+
+  const dfsEmpty = (x, y, data)=>{
     const directions = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
-    const m = board.length;
-    // Count the adjacent mines
-    if (board[x][y].neighbors > 0 && !board[x][y].isMine) {
-      board[x][y].isRevealed = true
-      setRevealed(revealed + 1)
-    }
-    else {
-      // If an empty square ('E') with no adjacent mines is revealed, then change it to revealed blank ('B')
-      // and all of its adjacent unrevealed squares should be revealed recursively.
-      // console.log("board:" + board,  "x:" + x, y)
-      for (let [dx, dy] of directions) {
-        const i = x + dx, j = y + dy;
-        if (i >= 0 && i < m && j >= 0 && j < m && !board[i][j].isRevealed) {
-          board[i][j].isRevealed = true;
+    const m = data.length;
+
+    for (let [dx, dy] of directions) {
+      const i = x + dx, j = y + dy;
+      if (i >= 0 && i < m && j >= 0 && j < m){
+        if (
+          !data[i][j].isFlagged &&
+          !data[i][j].isRevealed &&
+          (data[i][j].isEmpty || !data[i][j].isMine)
+        ) {
+          data[i][j].isRevealed = true;
           setRevealed(revealed + 1)
-          dfs(i, j, board);
+          if (data[i][j].isEmpty) {
+            dfsEmpty(i, j, data);
+          }
         }
       }
+      
     }
-    return board
-  };
+    return data;
+  }
 
-  const updateBoard = (x, y, board) => {
+  const handleLeftClick = (x, y) =>{
+    if(gameStatus === "not started"){
+      setGameStatus("ongoing")
+    }
+    
+    if (
+      board[x][y].isRevealed ||
+      board[x][y].isFlagged
+    )
+      return null;
+
     if (board[x][y].isMine) {
-      board[x][y].isRevealed = true;
-      setRevealed(revealed + 1)
-    } 
-    else {
-      board = dfs(x, y, board);
-    }
-    return board;
-  };
-
-
-
-  const handleLeftClick = (x, y) => {
-    if (board[x][y].isRevealed || board[x][y].isFlagged) {
-      return
+      // this.setState({ gameStatus: "You Lost." });
+      revealAllMine();
+      setGameStatus("game over");
+      alert("game over")
     }
 
-    let tempBoard =updateBoard(x, y, board)
+    let tempBoard = board;
+    tempBoard[x][y].isFlagged = false;
+    tempBoard[x][y].isRevealed = true;
+    setRevealed(revealed + 1)
+
+    if (tempBoard[x][y].isEmpty) {
+      tempBoard = dfsEmpty(x, y, tempBoard);
+    }
+
+    if (getCovered(tempBoard).length === 10) {
+      // this.setState({ mineCount: 0, gameStatus: "You Win." });
+      revealAllMine();
+      setGameStatus("game over");
+      alert("You Win");
+    }
+
     setBoard(tempBoard)
   }
 
   const handleRightClick = (x, y, e) => {
-    e.preventDefault()
-    if (board[x][y].isRevealed) {
-      return
+    e.preventDefault();
+    let tempBoard = board;
+    let flag = flagCount;
+
+    // check if already revealed
+    if (tempBoard[x][y].isRevealed) return;
+
+    if (tempBoard[x][y].isFlagged) {
+      tempBoard[x][y].isFlagged = false;
+      flag--;
+    } else {
+      tempBoard[x][y].isFlagged = true;
+      flag++;
     }
-    
-    let tempBoard = board
-    if(!tempBoard[x][y].isFlagged){
-      tempBoard[x][y].isFlagged = true
-      setFlagCount(flagCount + 1)
+    console.log(flag, getFlaggedMine(tempBoard))
+    if (flag === 10 && getFlaggedMine(tempBoard) === 10) {
+        revealAllMine();
+        setGameStatus("game over");
+        alert("You Win");
     }
-    else {
-      tempBoard[x][y].isFlagged = false 
-      setFlagCount(flagCount - 1)
-    }
-    
-    setBoard(tempBoard)
+
+    setBoard(tempBoard);
+    setFlagCount(flag)
   }
 
 
