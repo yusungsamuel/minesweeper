@@ -216,8 +216,8 @@ const Grid = () => {
             {row.map((col, j) => {
               return (
                 <Square
-                  leftClick={() => { handleLeftClick(col.x, col.y) }}
-                  rightClick={(e) => { handleRightClick(col.x, col.y, e) }}
+                  leftClick={gameStatus==="game over" ? null: () => { handleLeftClick(col.x, col.y) }}
+                  rightClick={gameStatus==="game over" ? null: (e) => { handleRightClick(col.x, col.y, e) }}
                   key={`${col.x}and${col.y}is${col.isRevealed}`}
                   data={col}
                 >
