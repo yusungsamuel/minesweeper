@@ -195,7 +195,6 @@ const Grid = () => {
       tempBoard[x][y].isFlagged = true;
       flag++;
     }
-    console.log(flag, getFlaggedMine(tempBoard))
     if (flag === 10 && getFlaggedMine(tempBoard) === 10) {
       revealAllMine();
       setGameStatus("game over");
@@ -224,7 +223,6 @@ const Grid = () => {
     generateNewBoard()
   }, [])
 
-  console.log(board)
 
   return (
     <div>
@@ -249,7 +247,7 @@ const Grid = () => {
                   <Square
                     leftClick={gameStatus === "game over" ? null : () => { handleLeftClick(col.x, col.y) }}
                     rightClick={gameStatus === "game over" ? null : (e) => { handleRightClick(col.x, col.y, e) }}
-                    key={`${col.x}and${col.y}is${col.isRevealed}`}
+                    key={j}
                     data={col}
                   >
                   </Square>

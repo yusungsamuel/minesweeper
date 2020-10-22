@@ -5,7 +5,6 @@ import "./style.scss";
 const Square = (props) => {
 
     const conditionalRender = () => {
-        console.log("I was run")
         let data = props.data
         if (!data.isRevealed) {
             return (
