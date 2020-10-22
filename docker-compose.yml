@@ -20,8 +20,8 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     tty: true
-    env_file:
-      - ./app/.env
+    # env_file:
+    #   - ./app/.env
     logging: *default-logging
 
 volumes:

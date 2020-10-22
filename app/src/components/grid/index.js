@@ -13,7 +13,7 @@ const Grid = () => {
   const timeRef = useRef(null)
 
   const createEmptyBoard = () => {
-    let data = new Array();
+    let data = [];
 
     for (let i = 0; i < 8; i++) {
       data.push([]);
@@ -79,8 +79,8 @@ const Grid = () => {
   const getCovered = (data) => {
     let mineArray = [];
 
-    data.map(row => {
-      row.map(item => {
+    data.forEach(row => {
+      row.forEach(item => {
         if (!item.isRevealed) {
           mineArray.push(item);
         }
