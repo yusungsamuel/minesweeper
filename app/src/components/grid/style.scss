@@ -1,3 +1,16 @@
-.row {
-    height: 30px;
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .row {
+        height: 50px;
+        width: 400px;    
+        .col{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }
 }

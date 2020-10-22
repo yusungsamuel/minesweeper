@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Row from 'react-bootstrap/Row'
 import Square from "../square"
+import Button from "../button"
+import Timer from "../timer"
 import "./style.scss"
 const Grid = () => {
   const [board, setBoard] = useState([])
   const [revealed, setRevealed] = useState(0)
   const [flagCount, setFlagCount] = useState(0)
   const [gameStatus, setGameStatus] = useState("not started")
+  const [time, setTime] = useState(0)
+  const timeRef = useRef(null)
 
   const createEmptyBoard = () => {
     let data = new Array();
@@ -86,13 +90,13 @@ const Grid = () => {
     return mineArray;
   }
 
-  const getFlaggedMine = (data) =>{
+  const getFlaggedMine = (data) => {
     let flaggedMine = 0
-    
-    data.forEach(row =>{
-      row.forEach(item=>{
-        if(item.isFlagged && item.isMine){
-          flaggedMine ++
+
+    data.forEach(row => {
+      row.forEach(item => {
+        if (item.isFlagged && item.isMine) {
+          flaggedMine++
         }
       })
     })
@@ -112,13 +116,13 @@ const Grid = () => {
     setBoard(tempBoard)
   }
 
-  const dfsEmpty = (x, y, data)=>{
+  const dfsEmpty = (x, y, data) => {
     const directions = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
     const m = data.length;
 
     for (let [dx, dy] of directions) {
       const i = x + dx, j = y + dy;
-      if (i >= 0 && i < m && j >= 0 && j < m){
+      if (i >= 0 && i < m && j >= 0 && j < m) {
         if (
           !data[i][j].isFlagged &&
           !data[i][j].isRevealed &&
@@ -131,16 +135,17 @@ const Grid = () => {
           }
         }
       }
-      
+
     }
     return data;
   }
 
-  const handleLeftClick = (x, y) =>{
-    if(gameStatus === "not started"){
-      setGameStatus("ongoing")
+  const handleLeftClick = (x, y) => {
+    if (gameStatus === "not started") {
+      setGameStatus("on going")
+      timeRef.current = setInterval(()=>{ setTime(timer => timer + 1); }, 1000);
     }
-    
+
     if (
       board[x][y].isRevealed ||
       board[x][y].isFlagged
@@ -151,6 +156,7 @@ const Grid = () => {
       // this.setState({ gameStatus: "You Lost." });
       revealAllMine();
       setGameStatus("game over");
+      clearInterval(timeRef.current)
       alert("game over")
     }
 
@@ -166,6 +172,7 @@ const Grid = () => {
     if (getCovered(tempBoard).length === 10) {
       // this.setState({ mineCount: 0, gameStatus: "You Win." });
       revealAllMine();
+      clearInterval(timeRef.current)
       setGameStatus("game over");
       alert("You Win");
     }
@@ -190,15 +197,28 @@ const Grid = () => {
     }
     console.log(flag, getFlaggedMine(tempBoard))
     if (flag === 10 && getFlaggedMine(tempBoard) === 10) {
-        revealAllMine();
-        setGameStatus("game over");
-        alert("You Win");
+      revealAllMine();
+      setGameStatus("game over");
+      clearInterval(timeRef.current)
+      alert("You Win");
     }
 
     setBoard(tempBoard);
     setFlagCount(flag)
   }
 
+  const changeGameState = (e) => {
+    e.preventDefault();
+    if (gameStatus === "game over" || gameStatus === "on going") {
+      setGameStatus("not started")
+      clearInterval(timeRef.current)
+      setTime(0)
+      generateNewBoard()
+    }
+    else {
+      return
+    }
+  }
 
   useEffect(() => {
     generateNewBoard()
@@ -207,26 +227,36 @@ const Grid = () => {
   console.log(board)
 
   return (
-    <div className="container">
-      {board.map((row, i) => {
-        return (
-          <Row
-            key={i}
-          >
-            {row.map((col, j) => {
-              return (
-                <Square
-                  leftClick={gameStatus==="game over" ? null: () => { handleLeftClick(col.x, col.y) }}
-                  rightClick={gameStatus==="game over" ? null: (e) => { handleRightClick(col.x, col.y, e) }}
-                  key={`${col.x}and${col.y}is${col.isRevealed}`}
-                  data={col}
-                >
-                </Square>
-              )
-            })}
-          </Row>
-        )
-      })}
+    <div>
+      <Button
+        change={changeGameState}
+        gameStatus={gameStatus}
+      ></Button>
+      <Timer
+        time={time}
+      ></Timer>
+      <div className="container">
+        {board.map((row, i) => {
+          return (
+            <Row
+              key={i}
+            >
+              {row.map((col, j) => {
+                return (
+                  <Square
+                    leftClick={gameStatus === "game over" ? null : () => { handleLeftClick(col.x, col.y) }}
+                    rightClick={gameStatus === "game over" ? null : (e) => { handleRightClick(col.x, col.y, e) }}
+                    key={`${col.x}and${col.y}is${col.isRevealed}`}
+                    data={col}
+                  >
+                  </Square>
+                )
+              })}
+            </Row>
+          )
+        })}
+      </div>
+
     </div>
   )
 }

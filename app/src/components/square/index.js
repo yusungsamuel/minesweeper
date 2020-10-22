@@ -9,43 +9,27 @@ const Square = (props) => {
         let data = props.data
         if (!data.isRevealed) {
             return (
-                data.isFlagged ? "flag" : null
+                data.isFlagged ? <i class="far fa-flag"></i> : null
             )
 
         }
         if (data.isMine) {
-            console.log("im a bomb")
-            return ("bomb")
+            return (<i class="fas fa-bomb"></i>)
         }
         if (data.neighbors === 0) {
             return (
-                data.isFlagged ? "flag" : 0
+                data.isFlagged ? <i class="far fa-flag"></i> : ""
             );
         }
         return (
             data.neighbors
         );
     }
-    // const handleClick = (e) => {
-    //     if (status === "covered") {
-    //         if (e.type === "click") {
-    //             props.update(props.coordinate, setStatus)
-    //         }
-    //         else if (e.type === 'contextmenu') {
-    //             e.preventDefault();
-    //             setStatus("flagged")
-    //         }
-    //     }
-    //     else if (status === "flagged") {
-    //         if (e.type === 'contextmenu') {
-    //             e.preventDefault();
-    //             setStatus("covered")
-    //         }
-    //     }
 
-    // }
+    let className = `col ${props.data.isRevealed ? "revealed" : " unrevealed"}`
     return (
         <Col
+            bsPrefix={className}
             onClick={props.leftClick}
             onContextMenu={props.rightClick}
         >
